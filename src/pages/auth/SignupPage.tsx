@@ -14,6 +14,8 @@ export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isPasswordMatched = password === confirmPassword;
   const isFormValid =
@@ -23,22 +25,29 @@ export default function SignupPage() {
     confirmPassword.trim() !== '' &&
     isPasswordMatched;
 
-  const handleSignup = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!isFormValid) return;
 
-    signup({ name, email });
-    navigate('/dashboard', { replace: true });
+    setErrorMessage('');
+    setIsSubmitting(true);
+
+    try {
+      await signup({ name, email, password });
+      navigate('/dashboard', { replace: true });
+    } catch (error) {
+      setErrorMessage('회원가입에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <Card padding={32}>
       <div style={styles.header}>
         <h2 style={styles.title}>회원가입</h2>
-        <p style={styles.subtitle}>
-          새 계정을 만들어 학습을 시작하세요.
-        </p>
+        <p style={styles.subtitle}>새 계정을 만들어 학습을 시작하세요.</p>
       </div>
 
       <form onSubmit={handleSignup} style={styles.form}>
@@ -85,8 +94,10 @@ export default function SignupPage() {
           <p style={styles.errorText}>비밀번호가 일치하지 않습니다.</p>
         )}
 
-        <Button type="submit" fullWidth disabled={!isFormValid}>
-          회원가입
+        {errorMessage && <p style={styles.errorText}>{errorMessage}</p>}
+
+        <Button type="submit" fullWidth disabled={!isFormValid || isSubmitting}>
+          {isSubmitting ? '가입 중...' : '회원가입'}
         </Button>
       </form>
 

@@ -12,12 +12,22 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setErrorMessage('');
+    setIsSubmitting(true);
 
-    login({ email });
-    navigate('/dashboard', { replace: true });
+    try {
+      await login({ email, password });
+      navigate('/dashboard', { replace: true });
+    } catch (error) {
+      setErrorMessage('로그인에 실패했습니다. 이메일과 비밀번호를 확인하세요.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -48,8 +58,10 @@ export default function LoginPage() {
           required
         />
 
-        <Button type="submit" fullWidth>
-          로그인
+        {errorMessage && <p style={styles.errorText}>{errorMessage}</p>}
+
+        <Button type="submit" fullWidth disabled={isSubmitting}>
+          {isSubmitting ? '로그인 중...' : '로그인'}
         </Button>
       </form>
 
@@ -82,6 +94,11 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     gap: '18px',
+  },
+  errorText: {
+    margin: '-8px 0 0 0',
+    fontSize: '13px',
+    color: '#f87171',
   },
   footerText: {
     marginTop: '24px',
