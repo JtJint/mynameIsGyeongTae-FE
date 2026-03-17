@@ -1,11 +1,14 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Card from "../../shared/components/ui/Card";
-import Button from "../../shared/components/ui/Button";
-import Input from "../../shared/components/ui/Input";
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+
+import Button from '../../shared/components/ui/Button';
+import Input from '../../shared/components/ui/Input';
+import Card from '../../shared/components/ui/Card';
+import { useAuthStore } from '../../features/auth/store/authStore';
 
 export default function SignupPage() {
   const navigate = useNavigate();
+  const signup = useAuthStore((state) => state.signup);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -13,88 +16,101 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const isPasswordMatched = password === confirmPassword;
-
-  const isFormValid = 
-  name.trim()!=='' && 
-  email.trim()!==''&&
-  password.trim()!==''&&
-  confirmPassword.trim()!==''&&
-  isPasswordMatched;
+  const isFormValid =
+    name.trim() !== '' &&
+    email.trim() !== '' &&
+    password.trim() !== '' &&
+    confirmPassword.trim() !== '' &&
+    isPasswordMatched;
 
   const handleSignup = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!isFormValid) {
-      alert('모든 필드를 올바르게 입력해주세요.');
-      return;
-    }
-    localStorage.setItem('accessToken', 'temp-access-token');
-    localStorage.setItem('userEmail', email);
-    localStorage.setItem('userName', name);
+
+    if (!isFormValid) return;
+
+    signup({ name, email });
     navigate('/dashboard', { replace: true });
   };
-
 
   return (
     <Card padding={32}>
       <div style={styles.header}>
         <h2 style={styles.title}>회원가입</h2>
-        <p style={styles.subtitle}>새 계정을 만들어 학습을 시작하세요.</p>
+        <p style={styles.subtitle}>
+          새 계정을 만들어 학습을 시작하세요.
+        </p>
       </div>
+
       <form onSubmit={handleSignup} style={styles.form}>
-        <Input 
-          id = "name"
-          label = "이름"
-          type = "text"
-          value = {name}
-          onChange = {(e) => setName(e.target.value)}
+        <Input
+          id="name"
+          label="이름"
+          placeholder="이름을 입력하세요"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           required
         />
-        <Input 
-          id = "email"
-          label = "이메일"
-          type = "email"
-          value = {email}
-          onChange = {(e) => setEmail(e.target.value)}
+
+        <Input
+          id="email"
+          label="이메일"
+          type="email"
+          placeholder="example@email.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <Input 
-          id = "password"
-          label = "비밀번호"
-          type = "password"
-          value = {password}
-          onChange = {(e) => setPassword(e.target.value)}
+
+        <Input
+          id="password"
+          label="비밀번호"
+          type="password"
+          placeholder="비밀번호를 입력하세요"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <Input 
-          id = "confirmPassword"
-          label = "비밀번호 확인"
-          type = "password"
-          value = {confirmPassword}
-          onChange = {(e) => setConfirmPassword(e.target.value)}
+
+        <Input
+          id="confirmPassword"
+          label="비밀번호 확인"
+          type="password"
+          placeholder="비밀번호를 다시 입력하세요"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
           required
         />
-        {!isPasswordMatched && (
+
+        {!isPasswordMatched && confirmPassword.trim() !== '' && (
           <p style={styles.errorText}>비밀번호가 일치하지 않습니다.</p>
         )}
+
         <Button type="submit" fullWidth disabled={!isFormValid}>
           회원가입
         </Button>
       </form>
+
+      <p style={styles.footerText}>
+        이미 계정이 있나요?{' '}
+        <Link to="/login" style={styles.link}>
+          로그인
+        </Link>
+      </p>
     </Card>
   );
 }
 
 const styles: Record<string, React.CSSProperties> = {
   header: {
-    marginBlock: '28px',
+    marginBottom: '28px',
   },
-  title : {
-    margin : 0,
+  title: {
+    margin: 0,
     fontSize: '28px',
     fontWeight: 700,
     color: '#f8fafc',
   },
-  subtitle : {
+  subtitle: {
     marginTop: '8px',
     color: '#94a3b8',
     fontSize: '14px',

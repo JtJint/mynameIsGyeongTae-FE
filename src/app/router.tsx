@@ -13,13 +13,12 @@ import LearningPage from '../pages/learning/LearningPage';
 import ResultPage from '../pages/result/ResultPage';
 import NotFoundPage from '../pages/not-found/NotFoundPage';
 
-const isAuthenticated = () => {
-  const token = localStorage.getItem('accessToken');
-  return Boolean(token);
-};
+import { useAuthStore } from '../features/auth/store/authStore';
 
 function ProtectedRoute() {
-  if (!isAuthenticated()) {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
@@ -27,7 +26,9 @@ function ProtectedRoute() {
 }
 
 function PublicOnlyRoute() {
-  if (isAuthenticated()) {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
 

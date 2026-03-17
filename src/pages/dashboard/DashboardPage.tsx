@@ -1,12 +1,14 @@
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../features/auth/store/authStore';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const userEmail = localStorage.getItem('userEmail') ?? 'guest@example.com';
+
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
 
   const handleLogout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('userEmail');
+    logout();
     navigate('/login', { replace: true });
   };
 
@@ -17,7 +19,10 @@ export default function DashboardPage() {
           <p style={styles.eyebrow}>Welcome back</p>
           <h2 style={styles.heroTitle}>발음 교정 학습 대시보드</h2>
           <p style={styles.heroDesc}>
-            현재 로그인 계정: <strong>{userEmail}</strong>
+            현재 로그인 계정: <strong>{user?.email ?? 'guest@example.com'}</strong>
+          </p>
+          <p style={styles.heroDesc}>
+            사용자 이름: <strong>{user?.name ?? 'Guest'}</strong>
           </p>
         </div>
 
@@ -87,7 +92,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 800,
   },
   heroDesc: {
-    margin: 0,
+    margin: '6px 0',
     color: '#e2e8f0',
     fontSize: '15px',
   },
